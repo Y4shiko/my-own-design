@@ -1,0 +1,101 @@
+class Microgrid:
+    def __init__(self, wind_units, pv_units, diesel_generator, demand):
+        self.wind_units = wind_units
+        self.pv_units = pv_units
+        self.diesel_generator = diesel_generator
+        self.demand = demand
+        self.energy_balance = 0
+
+    def calculate_energy_balance(self, time):
+        wind_power = sum(unit.calculate_power_output(time) for unit in self.wind_units)
+        pv_power = sum(unit.calculate_power_output(time) for unit in self.pv_units)
+        diesel_power = self.diesel_generator.calculate_power_output(time)
+
+        total_power = wind_power + pv_power + diesel_power
+        self.energy_balance = total_power - self.demand
+
+    def calculate_cost(self):
+        investment_cost = sum(unit.calculate_investment_cost() for unit in self.wind_units + self.pv_units + [self.diesel_generator])
+        operational_cost = sum(unit.calculate_operational_cost() for unit in self.wind_units + self.pv_units + [self.diesel_generator])
+
+        return investment_cost, operational_cost
+
+class Generator:
+    def __init__(self, max_power, efficiency, fuel_cost):
+        self.max_power = max_power
+        self.efficiency = efficiency
+        self.fuel_cost = fuel_cost
+
+    def calculate_power_output(self, time):
+        # Placeholder for power output calculation
+        return 0
+
+    def calculate_fuel_consumption(self, power_output, time):
+        # Placeholder for fuel consumption calculation
+        return 0
+
+    def calculate_investment_cost(self):
+        # Placeholder for investment cost calculation
+        return 0
+
+    def calculate_operational_cost(self, power_output, time):
+        fuel_consumption = self.calculate_fuel_consumption(power_output, time)
+        return fuel_consumption * self.fuel_cost
+
+class WindTurbine(Generator):
+    def __init__(self, max_power, capacity_factor):
+        super().__init__(max_power, efficiency=1.0, fuel_cost=0)  # Wind is a free resource
+        self.capacity_factor = capacity_factor
+
+    def calculate_power_output(self, time):
+        return super().calculate_power_output(time) + self.max_power * self.capacity_factor
+
+    def calculate_investment_cost(self):
+        # Placeholder for wind turbine investment cost calculation
+        return 0
+
+class PVUnit(Generator):
+    def __init__(self, max_power, capacity_factor):
+        super().__init__(max_power, efficiency=1.0, fuel_cost=0)  # Solar energy is free
+        self.capacity_factor = capacity_factor
+
+    def calculate_power_output(self, time):
+        return super().calculate_power_output(time) + self.max_power * self.capacity_factor
+
+    def calculate_investment_cost(self):
+        # Placeholder for PV unit investment cost calculation
+        return 0
+
+class DieselGenerator(Generator):
+    def __init__(self, max_power, efficiency, fuel_cost):
+        super().__init__(max_power, efficiency, fuel_cost)
+
+    def calculate_power_output(self, time):
+        # Placeholder for diesel generator power output calculation
+        return super().calculate_power_output(time)
+
+    def calculate_fuel_consumption(self, power_output, time):
+        # Placeholder for diesel generator fuel consumption calculation
+        return super().calculate_fuel_consumption(power_output, time)
+
+    def calculate_investment_cost(self):
+        # Placeholder for diesel generator investment cost calculation
+        return 0
+
+# Example usage:
+wind_unit_1 = WindTurbine(max_power=100, capacity_factor=0.3)
+wind_unit_2 = WindTurbine(max_power=150, capacity_factor=0.25)
+pv_unit_1 = PVUnit(max_power=80, capacity_factor=0.2)
+pv_unit_2 = PVUnit(max_power=120, capacity_factor=0.18)
+diesel_generator = DieselGenerator(max_power=50, efficiency=0.9, fuel_cost=1.5)
+
+microgrid = Microgrid(wind_units=[wind_unit_1, wind_unit_2], pv_units=[pv_unit_1, pv_unit_2], diesel_generator=diesel_generator, demand=200)
+
+# Set time and calculate energy balance
+time = 1  # You can change this value based on your time intervals
+microgrid.calculate_energy_balance(time)
+
+# Calculate and print costs
+investment_cost, operational_cost = microgrid.calculate_cost()
+print("Investment Cost:", investment_cost)
+print("Operational Cost:", operational_cost)
